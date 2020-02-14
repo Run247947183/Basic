@@ -1,0 +1,44 @@
+在 Java 中，instanceof 操作符的前一个操作数通常会是一个引用类型的变量（一个实际的对象），
+后一个操作数会是一个类或者接口，
+它的主要作用就是用来判断，前面的对象是不是后面的类或者其子类所实现的实例
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.Socket;
+import java.net.URL;
+import java.util.*;
+
+class Animal {
+
+}
+
+class Cat extends Animal {
+
+}
+
+class Tiger extends Animal {
+
+}
+
+class Car {
+
+}
+
+class BMW extends Car {
+
+}
+
+
+
+public class Test2 {
+    public static void main(String[] args) {
+        Cat cat = new Cat();
+        Tiger tiger = new Tiger();
+        BMW bmw = new BMW();
+        System.out.println(cat instanceof Animal);
+        System.out.println(tiger instanceof Animal);
+//        System.out.println(bmw instanceof Animal);  编译不通过
+//        System.out.println(cat instanceof Car); 编译不通过
+
+    }
+}
