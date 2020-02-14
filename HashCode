@@ -1,0 +1,165 @@
+# hashCode
+hashCode是 Object 类的本地方法，在 Java 中 hashCode 主要应用于散列类型集合的运行，例如 HashSet、HashMap、HashTable
+
+**hashCode官方文档定义：**
+
+
+
+hashcode方法返回该对象的哈希码值。支持该方法是为哈希表提供一些优点，例如，java.util.Hashtable 提供的哈希表。 
+
+hashCode 的常规协定是： 
+在 Java 应用程序执行期间，在同一对象上多次调用 hashCode 方法时，必须一致地返回相同的整数，前提是对象上 equals 比较中所用的信息没有被修改。从某一应用程序的一次执行到同一应用程序的另一次执行，该整数无需保持一致。 
+如果根据 equals(Object) 方法，两个对象是相等的，那么在两个对象中的每个对象上调用 hashCode 方法都必须生成相同的整数结果。 
+以下情况不 是必需的：如果根据 equals(java.lang.Object) 方法，两个对象不相等，那么在两个对象中的任一对象上调用 hashCode 方法必定会生成不同的整数结果。但是，程序员应该知道，为不相等的对象生成不同整数结果可以提高哈希表的性能。 
+实际上，由 Object 类定义的 hashCode 方法确实会针对不同的对象返回不同的整数。（这一般是通过将该对象的内部地址转换成一个整数来实现的，但是 JavaTM 编程语言不需要这种实现技巧。） 
+
+当equals方法被重写时，通常有必要重写 hashCode 方法，以维护 hashCode 方法的常规协定，该协定声明相等对象必须具有相等的哈希码。
+
+
+## 关于 hashCode 和 equals 的几个关键点：
+### （1）对于两个对象来说，如果 hashCode 值相同，这两个对象用 equals 方法得出的结果也不一定为 true
+### （2）hashCode 值不相同，那么 equals 方法得出的结果一定为 false
+### （3）equals 得出的结果为 true，也就是说两个对象相同，那么他们俩的 hashCode 值一定相同
+### （4）equals 得出的结果为 false，那么这两个对象的 hashCode 值一定不相同
+
+
+## 为什么要这样去定义？
+当向散列集合中插入数据时，就拿 HashMap 来举例，如果没有 hashCode 值来做提前的判断，那么就需要用到 equals 进行一个个的比较，判断集合中是否存在相同的数据，当数据量很大时，这样效率就很低
+此时如果用到 hashCode ，那么就会大大提升效率，要存放进 hashMap 的数据会根据一定的规则（不同 JVM 会有不同的规则）形成 hashCode 值，这些 hashCode 值会存放在一个类似于 table 的表中，当有新插入数据时，会在 table 中查找是否存在相同的 hashCode 值，如果存在，那么此时也不一定代表就有和它相同的数据存在
+此时就要用 equals 来进一步的判断是否相同，相同的话，就更新 value 值
+这样做的目的是为了减少 equals 的比较次数，从而整体提升程序效率
+
+
+
+
+## 重写 equals 方法时也必须要重写 hashCode 方法
+
+
+package HashCode;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class HashTest {
+    private int i;
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public int getI() {
+
+        return i;
+    }
+
+
+    // 重写 equals 方法
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof HashTest)) {
+            return false;
+        }
+        HashTest hashTest = (HashTest)obj;
+        if (hashTest.getI() == this.getI()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        HashTest a = new HashTest();
+        HashTest b = new HashTest();
+        a.setI(1);
+        b.setI(1);
+        Set<HashTest> set = new HashSet<>();
+        set.add(a);
+        set.add(b);
+        System.out.println(a.hashCode() == b.hashCode()); // false
+        System.out.println(a.equals(b)); // true;
+        System.out.println(set); // [HashCode.HashTest@677327b6, HashCode.HashTest@1540e19d]
+    }
+
+}
+
+
+### 以上代码为重写了 equals 但没有重写 hashCode 的情况，
+我们都直到 HashSet 不添加重复的元素，但是却打印出了两个元素，这两个元素是相同的，所以这不符合该有的逻辑
+
+```java
+package HashCode;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class HashTest {
+    private int i;
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public int getI() {
+
+        return i;
+    }
+
+    // 重写 hashCode 方法
+    @Override
+    public int hashCode() {
+        return i / 10;
+    }
+
+    // 重写 equals 方法
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof HashTest)) {
+            return false;
+        }
+        HashTest hashTest = (HashTest)obj;
+        if (hashTest.getI() == this.getI()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        HashTest a = new HashTest();
+        HashTest b = new HashTest();
+        a.setI(1);
+        b.setI(1);
+        Set<HashTest> set = new HashSet<>();
+        set.add(a);
+        set.add(b);
+        System.out.println(a.hashCode() == b.hashCode()); // true
+        System.out.println(a.equals(b)); // true
+        System.out.println(set); // [HashCode.HashTest@0]
+    }
+
+}
+
+// 重写了 equals 和 hashCode 方法
+// 重写 equals 方法是因为 Object 类中 equals 方法比较的是对象的地址是否相等
+// 我们需要判断的是两个对象的内容是否相等
+// 因为重写了 equals 方法，所以必须重写 hashCode 方法
+// 保证整段代码逻辑性上的正确
+// 如果重写了 equals 方法，没有重写 hashCode 方法，就会出现例如一下的错误逻辑
+// HashSet 不允许两个相同的对象加入，里面的值都是唯一的
+// 此时没有重写 hashCode 方法，默认的是 Object 中的计算 hashCode 规则
+// 此时就算两个对象内容相同，但是他们的 hashCode 不同（在极小的概率下可能相同）
+// 因此输出 set 时我们可以发现，此时用两个对象存在，但是这两个对象的内容都相同
+// 不应该都被加入 Set 中，违反了逻辑
+
+## 在添加 hashCode 的重写方法之后，HashSet 集合里面只有了一个元素，
+没有添加重复的元素，符合该有的逻辑，并且也这两个元素的 hashCode 值相同
