@@ -1,0 +1,54 @@
+**String 类中的 equals**
+
+public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String)anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                        return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+**Object 类中的 equals**
+
+public boolean equals(Object obj) {
+        return (this == obj);
+    }
+    
+ 
+ **结论：**
+在刚开始学习的时候，经常误认为 equals方法就是比较两个对象的内容是否相等
+那是因为我们经常用到的 equals 方法都是已经被重写过了，例如 String类或则Data类等
+如果没有重写 equals 方法，那么通常会调用 object 类中 equals 方法
+此时 equals 方法和 == 一样都是比较地址是否相等
+
+示例：
+public class Test2 {
+    public static void main(String[] args) {
+        // String 类重写了 equals 方法
+        String s1 = "asd";
+        String s2 = "asd";
+        System.out.println(s1.equals(s2)); // 相等，比较对象的内容
+
+        // StringBuffer 类中没有重写 equals 方法
+        StringBuffer sb1 = new StringBuffer("abc");
+        StringBuffer sb2 = new StringBuffer("abc");
+        // 此时调用的是 Object 类中 equals 方法，比较的是地址
+        System.out.println(sb1.equals(sb2));
+
+    }
+}
